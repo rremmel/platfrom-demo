@@ -20,7 +20,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: webapp
-          image: rremmel/simple-webapp:20260915-4
+          image: docker.io/rremmel/simple-webapp:20260915-4
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:

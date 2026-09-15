@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: simple-webapp
+  labels:
+    app: simple-webapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: simple-webapp
+  template:
+    metadata:
+      labels:
+        app: simple-webapp    
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: webapp
+          image: docker.io/rremmel/simple-webapp:20260915-5
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              memory: 256Mi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-simple-webapp
+spec:
+  selector:
+    app: simple-webapp
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: rt-simple-webapp
+spec:
+  parentRefs:
+  - group: gateway.networking.k8s.io
+    kind: Gateway
+    name: oracle-gateway-public
+    namespace: oracle-gateway
+    sectionName: https
+  hostnames:
+  - "webapp.rmit-demo.entigo.dev"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: svc-simple-webapp
+      port: 8080

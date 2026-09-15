@@ -4,6 +4,6 @@ metadata:
   name: mydatabase
 spec:
   allocatedStorage: 20
-  engineVersion: '17.2'
+  engineVersion: '18.6'
   instanceType: 'db.t3.small'
   deletionProtection: false
